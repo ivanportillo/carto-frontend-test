@@ -1,0 +1,17 @@
+{
+  "name": "carto-frontend-test",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/ivanportillo/carto-frontend-test.git",
+  "author": "Iván Portillo Leal <ivanportillo@me.com>",
+  "license": "MIT",
+  "dependencies": {
+    "browserify": "^14.4.0",
+    "leaflet": "^1.2.0"
+  },
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-browserify": "^5.2.0",
+    "load-grunt-tasks": "^3.5.2"
+  }
+}
