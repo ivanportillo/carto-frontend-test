@@ -1,0 +1,21 @@
+.color-switch-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.color-switch-label {
+    font-size: 10pt;
+    width: 62px;
+}
+
+.color-switch-button {
+    display: inline-block;
+    border-radius: 50%;
+    border: 1px solid #C7D6D5;
+    height: 20px;
+    width: 20px;
+    margin: 3px;
+    cursor: pointer;
+}
