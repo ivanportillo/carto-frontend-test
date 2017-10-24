@@ -53,12 +53,15 @@ class Map {
 
     changeStyleProperty(property) {
         const availableProperties = ['radius', 'fillColor', 'color', 'weight', 'fillOpacity'];
+        const numericProperties = ['radius', 'weight', 'fillOpacity'];
         if(!availableProperties.includes(property)) {
             return console.error(`MAP: Invalid property ${property}`);
         }
 
         return (value) => {
-            const newProperty = { [property]: value };
+            console.log(property);
+            const newValue = (numericProperties.includes(property) ? Number(value) : value);
+            const newProperty = { [property]: newValue };
             this.markerStyle = Object.assign(this.markerStyle, newProperty);
             setStyle(this.dataLayer, this.markerStyle);
         }
