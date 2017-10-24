@@ -59,7 +59,6 @@ class Map {
         }
 
         return (value) => {
-            console.log(property);
             const newValue = (numericProperties.includes(property) ? Number(value) : value);
             const newProperty = { [property]: newValue };
             this.markerStyle = Object.assign(this.markerStyle, newProperty);
