@@ -3,9 +3,9 @@
 const map = require('./components/map');
 const style = require('./components/style');
 
-const rangeSlider = require('./components/controls/rangeSlider');
-const colorSwitch = require('./components/controls/colorSwitch');
-const secretControl = require('./components/controls/secretControl');
+const rangeSlider = require('./components/controls/rangeSlider/rangeSlider');
+const colorSwitch = require('./components/controls/colorSwitch/colorSwitch');
+const secretControl = require('./components/controls/secretControl/secretControl');
 
 const cordobaCoords = [37.887652, -4.779980];
 const colors = ['#C5EDAC', '#474954', '#DD1C1A', '#F0C808', '#07A0C3'];
