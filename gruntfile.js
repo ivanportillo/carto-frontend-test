@@ -7,7 +7,7 @@ module.exports = grunt => {
                 options: {
                     transform: [['babelify', {presets: ['es2015']}]]
                  },
-                src: ['src/**/*.js', '!src/resources/*.js'],
+                src: ['src/**/*.js', '!src/resources/*.js', '!src/**/*.spec.js'],
                 dest: 'public/app.js'
             }
         },
