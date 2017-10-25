@@ -2,6 +2,9 @@
 
 const { Map: LeafletMap, geoJSON, tileLayer, icon } = require('leaflet');
 
+// Credits: https://github.com/johan/world.geo.json
+const CountriesGEOJSON = require('../resources/countriesGeoJSON');
+
 const setStyle = (dataLayer, styleObj) => {
     dataLayer.eachLayer(layer => {
         if(!!layer.setStyle) {
@@ -16,21 +19,9 @@ const pokeballs = icon({
 });
 
 class Map {
-    constructor(container, center, zoom, geoJSON) {
-        const initialMarkerStyle = {
-            color: '#474954',
-            fillColor: '#C5EDAC',
-            radius: 5,
-            fillOpacity: 0.8,
-            weight: 2
-        };
-
-        this.data = geoJSON;
-        
-        this.markerStyle = initialMarkerStyle;
+    constructor(container, center, zoom) {
         this.map = new LeafletMap(container, { minZoom: 3 }).setView(center, zoom);
         this.tileLayer = this.createTileLayer(this.map);
-        this.dataLayer = this.createDataLayer(this.data, this.map, this.markerStyle);
     }
 
     createTileLayer(map) {
@@ -39,8 +30,11 @@ class Map {
         }).addTo(map);
     }
 
-    createDataLayer(data, map, markerStyle, icon) {
-        return geoJSON(data, {
+    createPointsLayer(data, markerStyle, icon) {
+        this.data = data;
+        this.markerStyle = markerStyle;
+
+        this.dataLayer = geoJSON(data, {
             pointToLayer: (feature, coords) => {
                 if(icon && feature.properties.adm0name === 'Spain'){
                     return new L.Marker(coords, { icon: pokeballs });
@@ -48,7 +42,38 @@ class Map {
                     return new L.CircleMarker(coords, this.markerStyle);
                 }
             }
-        }).addTo(map);
+        }).addTo(this.map);
+    }
+
+    createPopulationChoroLayer(data, colorFunction) {
+        this.dataLayer = geoJSON(CountriesGEOJSON, {
+            style: countryFeature => {
+                const countryData = data.features.filter(
+                    (datafeature) => datafeature.properties.adm0name === countryFeature.properties.name
+                );
+                const countriesNumber = countryData.length;
+                if(countriesNumber) {
+                    const sumPop = countryData.reduce((prev, act) => prev + act.properties.pop_max, 0);
+                    const avg = sumPop / countriesNumber;
+                    console.log(avg);
+                    return {
+                        fillColor: colorFunction(avg),
+                        color: 'black',
+                        weight: 1,
+                        fillOpacity: 1,
+                        opacity: 1
+                    };
+                }
+                return {
+                    fillColor: colorFunction(0),
+                    color: 'black',
+                    weight: 1,
+                    fillOpacity: 1,
+                    opacity: 1
+                };
+            }
+        }
+        ).addTo(this.map);
     }
 
     changeStyleProperty(property) {
@@ -68,7 +93,7 @@ class Map {
 
     addPokeballs() {
         this.map.removeLayer(this.dataLayer);
-        this.dataLayer = this.createDataLayer(this.data, this.map, this.markerStyle, pokeballs);
+        this.dataLayer = this.createPointsLayer(this.data, this.map, this.markerStyle, pokeballs);
     }
 }
 
