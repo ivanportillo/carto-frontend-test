@@ -1,7 +1,7 @@
 'use strict';
 
 const map = require('./components/map');
-const style = require('./components/style');
+const style = require('./components/style/style');
 
 const rangeSlider = require('./components/controls/rangeSlider/rangeSlider');
 const colorSwitch = require('./components/controls/colorSwitch/colorSwitch');
