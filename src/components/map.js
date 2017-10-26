@@ -1,6 +1,6 @@
 'use strict';
 
-const { Map: LeafletMap, geoJSON, tileLayer, icon } = require('leaflet');
+const { Map: LeafletMap, geoJSON, tileLayer, icon, control } = require('leaflet');
 
 // Credits: https://github.com/johan/world.geo.json
 const CountriesGEOJSON = require('../resources/countriesGeoJSON');
@@ -45,35 +45,69 @@ class Map {
         }).addTo(this.map);
     }
 
-    createPopulationChoroLayer(data, colorFunction) {
+    createPopulationChoroLayer(data, colorArray, commonStyle) {
+        this.markerStyle = commonStyle;
+
+        const colorFunction = value => {
+            let max = 0;
+            let valueIndex = 0;
+
+            colorArray.forEach((element, index) => {
+                if (value > element.greaterThan) {
+                    max = element.greaterThan;
+                    valueIndex = index;
+                }
+            });
+
+            return colorArray[valueIndex].color;
+        };
+
         this.dataLayer = geoJSON(CountriesGEOJSON, {
             style: countryFeature => {
+                // First of all, take only country-specific data
                 const countryData = data.features.filter(
                     (datafeature) => datafeature.properties.adm0name === countryFeature.properties.name
                 );
+
                 const countriesNumber = countryData.length;
+                let avg = 0;
                 if(countriesNumber) {
-                    const sumPop = countryData.reduce((prev, act) => prev + act.properties.pop_max, 0);
-                    const avg = sumPop / countriesNumber;
-                    console.log(avg);
-                    return {
-                        fillColor: colorFunction(avg),
-                        color: 'black',
-                        weight: 1,
-                        fillOpacity: 1,
-                        opacity: 1
-                    };
+                    //Add up all the pop max and then get the average
+                    const addPop = countryData.reduce((prev, act) => prev + act.properties.pop_max, 0);
+                    avg = addPop / countriesNumber;
                 }
-                return {
-                    fillColor: colorFunction(0),
-                    color: 'black',
-                    weight: 1,
-                    fillOpacity: 1,
-                    opacity: 1
-                };
+                return Object.assign({ fillColor: colorFunction(avg) }, this.markerStyle);
             }
         }
         ).addTo(this.map);
+
+        //Add legend
+        this.legend = control({ position: 'bottomright' });
+        
+        const createLegend = map => {
+            const div = L.DomUtil.create('div', 'info legend');
+    
+            colorArray.forEach((object, index) => {
+                let i = document.createElement('i');
+                i.style.background = object.color;
+                let span = document.createElement('span');
+                const secondElement = (index === colorArray.length - 1) ? 
+                    '+' : 
+                    ` - ${colorArray[index + 1].greaterThan}`;
+
+                span.innerHTML = `${object.greaterThan} ${secondElement}`;
+
+                let innerDiv = document.createElement('div');
+                innerDiv.appendChild(i);
+                innerDiv.appendChild(span);
+                div.appendChild(innerDiv);
+            });
+        
+            return div;
+        };
+
+        this.legend.onAdd = createLegend;
+        this.legend.addTo(this.map);
     }
 
     changeStyleProperty(property) {
