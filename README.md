@@ -48,3 +48,6 @@ Run tests:
 - **We love Easter eggs 😬.**
 
     Maybe, touching the heart twice could be a good idea. 🤔 (In Markers Map)
+
+## Credits
+Countries GEOJSON: https://github.com/johan/world.geo.json
