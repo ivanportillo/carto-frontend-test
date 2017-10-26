@@ -63,3 +63,19 @@ body {
     color: #F44E3F;
     margin: 0px 5px 0px 5px;
 }
+
+.legend {
+    line-height: 18px;
+    color: #555;
+    background: #FFFFFF;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
+}

@@ -1,6 +1,9 @@
 'use strict';
 
-const { Map: LeafletMap, geoJSON, tileLayer, icon } = require('leaflet');
+const { Map: LeafletMap, geoJSON, tileLayer, icon, control } = require('leaflet');
+
+// Credits: https://github.com/johan/world.geo.json
+const CountriesGEOJSON = require('../resources/countriesGeoJSON');
 
 const setStyle = (dataLayer, styleObj) => {
     dataLayer.eachLayer(layer => {
@@ -16,21 +19,9 @@ const pokeballs = icon({
 });
 
 class Map {
-    constructor(container, center, zoom, geoJSON) {
-        const initialMarkerStyle = {
-            color: '#474954',
-            fillColor: '#C5EDAC',
-            radius: 5,
-            fillOpacity: 0.8,
-            weight: 2
-        };
-
-        this.data = geoJSON;
-        
-        this.markerStyle = initialMarkerStyle;
+    constructor(container, center, zoom) {
         this.map = new LeafletMap(container, { minZoom: 3 }).setView(center, zoom);
         this.tileLayer = this.createTileLayer(this.map);
-        this.dataLayer = this.createDataLayer(this.data, this.map, this.markerStyle);
     }
 
     createTileLayer(map) {
@@ -39,8 +30,11 @@ class Map {
         }).addTo(map);
     }
 
-    createDataLayer(data, map, markerStyle, icon) {
-        return geoJSON(data, {
+    createPointsLayer(data, markerStyle, icon) {
+        this.data = data;
+        this.markerStyle = markerStyle;
+
+        this.dataLayer = geoJSON(data, {
             pointToLayer: (feature, coords) => {
                 if(icon && feature.properties.adm0name === 'Spain'){
                     return new L.Marker(coords, { icon: pokeballs });
@@ -48,7 +42,72 @@ class Map {
                     return new L.CircleMarker(coords, this.markerStyle);
                 }
             }
-        }).addTo(map);
+        }).addTo(this.map);
+    }
+
+    createPopulationChoroLayer(data, colorArray, commonStyle) {
+        this.markerStyle = commonStyle;
+
+        const colorFunction = value => {
+            let max = 0;
+            let valueIndex = 0;
+
+            colorArray.forEach((element, index) => {
+                if (value > element.greaterThan) {
+                    max = element.greaterThan;
+                    valueIndex = index;
+                }
+            });
+
+            return colorArray[valueIndex].color;
+        };
+
+        this.dataLayer = geoJSON(CountriesGEOJSON, {
+            style: countryFeature => {
+                // First of all, take only country-specific data
+                const countryData = data.features.filter(
+                    (datafeature) => datafeature.properties.adm0name === countryFeature.properties.name
+                );
+
+                const countriesNumber = countryData.length;
+                let avg = 0;
+                if(countriesNumber) {
+                    //Add up all the pop max and then get the average
+                    const addPop = countryData.reduce((prev, act) => prev + act.properties.pop_max, 0);
+                    avg = addPop / countriesNumber;
+                }
+                return Object.assign({ fillColor: colorFunction(avg) }, this.markerStyle);
+            }
+        }
+        ).addTo(this.map);
+
+        //Add legend
+        this.legend = control({ position: 'bottomright' });
+        
+        const createLegend = map => {
+            const div = L.DomUtil.create('div', 'info legend');
+    
+            colorArray.forEach((object, index) => {
+                let i = document.createElement('i');
+                i.style.background = object.color;
+                let span = document.createElement('span');
+                const secondElement = (index === colorArray.length - 1) ? 
+                    '+' : 
+                    ` - ${colorArray[index + 1].greaterThan}`;
+
+                span.innerHTML = `${object.greaterThan} ${secondElement}`;
+
+                let innerDiv = document.createElement('div');
+                innerDiv.appendChild(i);
+                innerDiv.appendChild(span);
+                div.appendChild(innerDiv);
+            });
+        
+            return div;
+        };
+
+        this.legend.onAdd = createLegend;
+        this.legend.addTo(this.map);
     }
 
     changeStyleProperty(property) {
@@ -68,7 +127,7 @@ class Map {
 
     addPokeballs() {
         this.map.removeLayer(this.dataLayer);
-        this.dataLayer = this.createDataLayer(this.data, this.map, this.markerStyle, pokeballs);
+        this.dataLayer = this.createPointsLayer(this.data, this.map, this.markerStyle, pokeballs);
     }
 }
 
