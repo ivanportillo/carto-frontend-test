@@ -15,7 +15,12 @@ Steps:
 ~~~~
 1. npm install / yarn install
 2. npm run build / yarn run build
-3. Open 'public/index.html' with a browser
+3. Open 'public/index.html' to see the map with markers or 'public/choroMap.html' to see the choropleth map
+~~~~
+
+Run tests:
+~~~~
+1. npm run test / yarn run test
 ~~~~
 
 ## Decisions
@@ -34,6 +39,7 @@ Steps:
 - **How would you implement a choropleth map?**
 
     A choropleth map could be implemented receiving polygons from a GEOJson file and putting a color to each one based in a property of each feature.
+    EDIT: Implemented (See 'public/choroMap.html')
 
 - **Do you feel a legend would be needed?**
 
@@ -41,4 +47,4 @@ Steps:
 
 - **We love Easter eggs 😬.**
 
-    Maybe, touching the heart twice could be a good idea. 🤔
+    Maybe, touching the heart twice could be a good idea. 🤔 (In Markers Map)
