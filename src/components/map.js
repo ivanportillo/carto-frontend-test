@@ -127,7 +127,7 @@ class Map {
 
     addPokeballs() {
         this.map.removeLayer(this.dataLayer);
-        this.dataLayer = this.createPointsLayer(this.data, this.markerStyle, pokeballs);
+        this.createPointsLayer(this.data, this.markerStyle, pokeballs);
     }
 }
 
